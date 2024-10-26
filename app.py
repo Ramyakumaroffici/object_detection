@@ -2,20 +2,46 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 import cv2
 import numpy as np
 import os
+import requests
 
 app = Flask(__name__)
 
+# URLs to download YOLO files if they are not present
+weights_url = "https://pjreddie.com/media/files/yolov3.weights"  # Official YOLO v3 weights URL
+config_url = "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg"
+weights_path = "yolov3.weights"
+config_path = "yolov3.cfg"
+
+# Function to download YOLO files if they do not exist
+def download_yolo_files():
+    if not os.path.exists(weights_path):
+        print("Downloading YOLO weights...")
+        response = requests.get(weights_url, stream=True)
+        with open(weights_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+        print("YOLO weights downloaded successfully.")
+    if not os.path.exists(config_path):
+        print("Downloading YOLO config...")
+        response = requests.get(config_url, stream=True)
+        with open(config_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+        print("YOLO config downloaded successfully.")
+
+# Ensure YOLO files are downloaded before loading the model
+download_yolo_files()
+
 # Load YOLO model
-net = cv2.dnn.readNet("yolov3.weights/yolov3.weights", "yolov3.cfg")
+net = cv2.dnn.readNet(weights_path, config_path)
 layer_names = net.getLayerNames()
 output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
 
 # Load class names
 with open("coco.names", "r") as f:
     classes = [line.strip() for line in f.readlines()]
-
-# Ensure output_layers is a NumPy array
-output_layers = np.array([layer_names[i - 1] for i in net.getUnconnectedOutLayers()])
 
 def process_frame(frame):
     height, width, _ = frame.shape
@@ -52,15 +78,12 @@ def process_frame(frame):
     for idx in indices:
         box = boxes[idx]
         x, y, w, h = map(int, box)  # Ensure x, y, w, h are integers
-        print(f"Drawing box with coordinates: x={x}, y={y}, w={w}, h={h}")  # Debug statement
         label = f"{classes[class_ids[idx]]} {confidences[idx]:.2f}"
         color = (0, 255, 0)
         if isinstance(x, int) and isinstance(y, int) and isinstance(w, int) and isinstance(h, int):  # Additional check
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
             cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-        else:
-            print("Invalid coordinates for rectangle:", x, y, w, h)  # Debug statement
-
+    
     # Save frame as image
     frame_path = os.path.join("static", "frames", "latest_frame.jpg")
     cv2.imwrite(frame_path, frame)  # Overwrites the file each time
