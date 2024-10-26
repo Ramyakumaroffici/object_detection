@@ -124,8 +124,9 @@ def upload():
     cap.release()
     os.remove(video_path)  # Delete the temporary file after processing
     return jsonify({'frames': [f.decode('latin1') for f in frames]})
-
+    
 if __name__ == '__main__':
     # Ensure the frames directory exists
     os.makedirs(os.path.join("static", "frames"), exist_ok=True)
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
+
