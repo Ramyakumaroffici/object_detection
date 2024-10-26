@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Object Detection Video Upload</h1>
+        <form id="uploadForm">
+            <input type="file" name="video" accept="video/*" required>
+            <button type="submit">Upload and Detect</button>
+        </form>
+        
+        <div id="output"></div>
+        
+        <h2>Live Object Detection Frames</h2>
+        <img id="frame-display" src="/latest_frame" alt="Frame not available">
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('video', e.target.video.files[0]);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+
+            // Optionally, you can display frames from the response here if your backend provides them.
+            // Uncomment the below lines if needed
+            /*
+            data.frames.forEach(frameData => {
+                const img = new Image();
+                img.src = 'data:image/jpeg;base64,' + btoa(frameData);
+                outputDiv.appendChild(img);
+            });
+            */
+        };
+
+        // Function to refresh the live frame display
+        function refreshFrame() {
+            const frameDisplay = document.getElementById("frame-display");
+            frameDisplay.src = "/latest_frame?timestamp=" + new Date().getTime(); // Prevent caching
+        }
+
+        // Refresh the frame every 500 milliseconds
+        setInterval(refreshFrame, 500);
+    </script>
+</body>
+</html>
