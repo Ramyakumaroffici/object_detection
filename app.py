@@ -128,5 +128,5 @@ def upload():
 if __name__ == '__main__':
     # Ensure the frames directory exists
     os.makedirs(os.path.join("static", "frames"), exist_ok=True)
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
 
