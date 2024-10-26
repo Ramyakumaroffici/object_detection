@@ -1,0 +1,102 @@
+/* Global Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f4f4f9;
+    color: #555;
+}
+
+/* Container Styles */
+.container {
+    text-align: center;
+    width: 800px; /* Further increased width */
+    max-width: 95%; /* Ensures responsive width */
+    padding: 40px; /* Increased padding */
+    border-radius: 15px; /* Larger rounded corners for a more polished look */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15); /* Enhanced shadow for better depth */
+    background-color: #ffffff;
+}
+
+/* Header Styles */
+h1 {
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 26px;
+    letter-spacing: 1px;
+}
+
+/* Form Styles */
+form {
+    margin-bottom: 25px;
+}
+
+/* Input Styles */
+input[type="file"] {
+    border: 2px dashed #007bff;
+    padding: 12px;
+    border-radius: 8px; /* Larger rounded corners */
+    width: 100%;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+}
+
+input[type="file"]:focus {
+    border-color: #0056b3;
+    outline: none;
+}
+
+/* Button Styles */
+button {
+    padding: 12px 25px;
+    background: #007bff;
+    border: none;
+    border-radius: 8px; /* Larger rounded corners */
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    font-size: 18px; /* Increased button font size */
+}
+
+button:hover {
+    background: #0056b3;
+    transform: translateY(-3px);
+}
+
+/* Output Styles */
+#output {
+    margin-top: 30px;
+    text-align: center;
+}
+
+/* Frames Link Styles */
+.frames-link {
+    display: block;
+    margin-top: 25px;
+    text-align: center;
+    color: #007bff;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.frames-link:hover {
+    color: #0056b3;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Output Image Styles */
+#output img {
+    width: 100%;
+    max-width: 700px; /* Allows for a larger display of images */
+    height: auto;
+    margin-top: 15px;
+    border-radius: 8px; /* Larger rounded corners for images */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); /* Stronger shadow for images */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
