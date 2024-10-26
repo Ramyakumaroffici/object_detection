@@ -3,11 +3,15 @@ import cv2
 import numpy as np
 import os
 import requests
+import logging
 
 app = Flask(__name__)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
 # URLs to download YOLO files if they are not present
-weights_url = "https://pjreddie.com/media/files/yolov3.weights"  # Official YOLO v3 weights URL
+weights_url = "https://pjreddie.com/media/files/yolov3.weights"
 config_url = "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg"
 weights_path = "yolov3.weights"
 config_path = "yolov3.cfg"
@@ -15,21 +19,21 @@ config_path = "yolov3.cfg"
 # Function to download YOLO files if they do not exist
 def download_yolo_files():
     if not os.path.exists(weights_path):
-        print("Downloading YOLO weights...")
+        logging.info("Downloading YOLO weights...")
         response = requests.get(weights_url, stream=True)
         with open(weights_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
-        print("YOLO weights downloaded successfully.")
+        logging.info("YOLO weights downloaded successfully.")
     if not os.path.exists(config_path):
-        print("Downloading YOLO config...")
+        logging.info("Downloading YOLO config...")
         response = requests.get(config_url, stream=True)
         with open(config_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
-        print("YOLO config downloaded successfully.")
+        logging.info("YOLO config downloaded successfully.")
 
 # Ensure YOLO files are downloaded before loading the model
 download_yolo_files()
@@ -80,19 +84,17 @@ def process_frame(frame):
         x, y, w, h = map(int, box)  # Ensure x, y, w, h are integers
         label = f"{classes[class_ids[idx]]} {confidences[idx]:.2f}"
         color = (0, 255, 0)
-        if isinstance(x, int) and isinstance(y, int) and isinstance(w, int) and isinstance(h, int):  # Additional check
-            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+        cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
     
     # Save frame as image
     frame_path = os.path.join("static", "frames", "latest_frame.jpg")
-    cv2.imwrite(frame_path, frame)  # Overwrites the file each time
+    cv2.imwrite(frame_path, frame)
 
     # Encode frame to bytes for further processing if needed
     _, buffer = cv2.imencode('.jpg', frame)
     frame_data = buffer.tobytes()
     return frame_data
-
 
 @app.route('/')
 def index():
@@ -108,7 +110,7 @@ def upload():
         return jsonify({'error': 'No file uploaded'}), 400
 
     video_file = request.files['video']
-    video_path = os.path.join("temp_video.mp4")  # Save as a temporary file
+    video_path = os.path.join("temp_video.mp4")
     video_file.save(video_path)
 
     cap = cv2.VideoCapture(video_path)
@@ -124,9 +126,7 @@ def upload():
     cap.release()
     os.remove(video_path)  # Delete the temporary file after processing
     return jsonify({'frames': [f.decode('latin1') for f in frames]})
-    
-if __name__ == '__main__':
-    # Ensure the frames directory exists
-    os.makedirs(os.path.join("static", "frames"), exist_ok=True)
-    app.run(debug=True, host='0.0.0.0', port=5000)
 
+if __name__ == '__main__':
+    os.makedirs(os.path.join("static", "frames"), exist_ok=True)
+    app.run(debug=True, host='0.0.0.0', port=3000)
