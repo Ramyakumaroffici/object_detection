@@ -77,18 +77,13 @@ def process_frame(frame):
 
     for idx in indices:
         box = boxes[idx]
-        x, y, w, h = map(int, box)  # Ensure x, y, w, h are integers
+        x, y, w, h = map(int, box)
         label = f"{classes[class_ids[idx]]} {confidences[idx]:.2f}"
         color = (0, 255, 0)
-        if isinstance(x, int) and isinstance(y, int) and isinstance(w, int) and isinstance(h, int):  # Additional check
-            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-    
-    # Save frame as image
-    frame_path = os.path.join("static", "frames", "latest_frame.jpg")
-    cv2.imwrite(frame_path, frame)  # Overwrites the file each time
+        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+        cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-    # Encode frame to bytes for further processing if needed
+    # Encode frame to bytes for further processing
     _, buffer = cv2.imencode('.jpg', frame)
     frame_data = buffer.tobytes()
     return frame_data
@@ -128,7 +123,7 @@ def upload():
     cap.release()
     os.remove(video_path)  # Delete the temporary file after processing
     return jsonify({'frames': [f.decode('latin1') for f in frames]})
-    
+
 if __name__ == '__main__':
     # Ensure the frames directory exists
     os.makedirs(os.path.join("static", "frames"), exist_ok=True)
